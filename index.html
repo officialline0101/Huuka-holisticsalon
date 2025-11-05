@@ -2,224 +2,393 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>予約フォーム</title>
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <style>
-    /* 右端の細いナビ（固定） */
-    .side-nav{
-      position:fixed; right:-5px; top:80%; transform:translateY(-50%) translateX(15px);
-      background:#13ca5e; display:flex; flex-direction:column; align-items:center;
-      padding:4px; border-radius:10px 0 0 10px; z-index:1000; width:35px;
+    :root{
+      --brand:#13ca5e;
+      --brand-ink:#0fa958;
+      --ink:#1a1a1a;
+      --muted:#6b7280;
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --line:#e5e7eb;
+      --danger:#dc3545;
+      --focus:rgba(19,202,94,.25);
+      --radius:14px;
+      --shadow:0 10px 28px rgba(2,8,20,.06), 0 2px 6px rgba(2,8,20,.05);
     }
-    .side-nav a{display:flex; align-items:center; justify-content:center; color:#fff; text-decoration:none;
-      font-size:10px; margin:5px 0; padding:5px; border-radius:5px; width:30px; height:30px; text-align:center;}
-    .side-nav a span{font-size:24px; position:absolute; left:0; top:13px;}
 
-    body{font-family:Arial, "Noto Sans JP", sans-serif; background:#f7f7f7; display:flex;
-      justify-content:center; align-items:flex-start; min-height:100vh; margin:0; padding:20px 0;}
-    .container{background:#fff; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,.1);
-      width:90%; max-width:520px; padding:20px; box-sizing:border-box;}
-    h1{background:linear-gradient(135deg,#13ca5e,#0fa958); color:#fff; padding:20px; border-radius:0 15px 0 45px;
-      text-align:center; margin:-20px -15px 20px -15px; font-size:24px; font-weight:600;}
-    .desc{margin: 12px 0 18px; font-size:14px; color:#333; background:#f8f9fa; padding:12px; border:1px solid #ced4da; border-radius:6px;}
-    .field{margin-bottom:18px;}
-    .label{display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:8px;}
-    .badge-required{color:#fff; background:#ff2f2f; font-size:12px; padding:1px 6px; border-radius:4px;}
-    input[type="text"], input[type="tel"], input[type="date"], input[type="datetime-local"], textarea{
-      width:100%; padding:12px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:16px;
-      transition:all .2s; background:#fff;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; padding:24px 12px;
+      font-family: "Noto Sans JP", system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      color:var(--ink); background:
+        radial-gradient(1200px 600px at 100% 0%, #e7fff1 0%, transparent 60%),
+        radial-gradient(900px 500px at 0% 100%, #eef7ff 0%, transparent 55%),
+        var(--bg);
     }
-    textarea{min-height:90px; resize:vertical;}
-    input:focus, textarea:focus{border-color:#13ca5e; outline:none; box-shadow:0 0 8px rgba(19,202,94,.2);}
-    .radios, .chips{display:flex; flex-wrap:wrap; gap:10px;}
+
+    .wrap{ max-width:720px; margin:0 auto; }
+    .card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+
+    .hero{
+      padding:28px 22px;
+      background:linear-gradient(150deg, var(--brand), var(--brand-ink));
+      color:#fff;
+    }
+    .hero h1{margin:0 0 6px; font-size:22px; letter-spacing:.02em}
+    .hero p{margin:0; opacity:.95; font-size:13px}
+
+    .content{padding:18px; display:grid; gap:18px}
+    .section{border:1px dashed var(--line); border-radius:12px; padding:14px}
+    .section-title{display:flex; align-items:center; gap:10px; margin-bottom:12px; font-weight:700; font-size:15px; letter-spacing:.02em;}
+
+    .grid{display:grid; gap:12px; grid-template-columns:1fr;}
+    @media (min-width:640px){ .grid.two{grid-template-columns:1fr 1fr} }
+
+    .field{display:flex; flex-direction:column; gap:8px}
+    .label{font-weight:700; font-size:14px; display:flex; gap:8px; align-items:center}
+    .hint{font-size:12px; color:var(--muted)}
+
+    .input, .textarea, .dt{
+      width:100%; padding:12px 14px;
+      border:1px solid var(--line); border-radius:10px; background:#fff; font-size:16px;
+      transition:border .15s, box-shadow .15s, transform .06s;
+    }
+    .input:focus, .textarea:focus, .dt:focus{ border-color:var(--brand); box-shadow:0 0 0 4px var(--focus); outline:0; }
+    .textarea{min-height:110px; resize:vertical}
+
+    .chips{display:flex; flex-wrap:wrap; gap:10px}
     .chip{
-      display:inline-flex; align-items:center; gap:8px; border:1px solid #ccc; border-radius:24px; padding:8px 12px; cursor:pointer; background:#fff;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; border:1px solid var(--line); border-radius:999px; background:#fff;
+      cursor:pointer; transition:all .15s ease; user-select:none;
     }
-    .chip input{accent-color:#13ca5e; transform:scale(1.1);}
-    .submit-button{width:100%; padding:14px; font-size:18px; border:none; border-radius:6px; background:#dc3545; color:#fff; cursor:pointer;}
-    .submit-button:hover{background:#c82333;}
-    .hidden{display:none;}
-    @media (max-width:600px){
-      .side-nav{right:2px; width:30px;}
-      .side-nav a{width:28px; height:28px;}
-      h1{font-size:22px;}
-      input, textarea{font-size:15px;}
+    .chip:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,.04)}
+    .chip input{appearance:none; width:16px; height:16px; border:2px solid var(--brand); border-radius:50%; display:inline-block}
+    .chip input:checked{background:var(--brand)}
+    .chip.active{border-color:var(--brand); background:rgba(19,202,94,.08)}
+
+    /* 必須バッジ（赤＋アイコン） */
+    .req{
+      display:inline-flex; align-items:center; gap:1px;
+      color:#fff; background:#ef4444; border:1px solid #ef4444;
+      padding:2px 4px; border-radius:999px; font-size:11px; font-weight:800; letter-spacing:.02em;
     }
+    .req i{font-size:11px}
+
+    .error{font-size:12px; color:#b91c1c; display:none}
+    .invalid .input, .invalid .textarea, .invalid .dt{border-color:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.18)}
+    .invalid .error{display:block}
+
+    .submit{ position:sticky; bottom:8px; z-index:2; margin-top:4px; }
+    .submit .btn{
+      width:100%; padding:15px 16px; font-size:17px; font-weight:700; letter-spacing:.02em;
+      border:none; border-radius:12px; color:#fff; background:linear-gradient(160deg, #ff6b6b, #dc3545);
+      box-shadow:0 12px 24px rgba(220,53,69,.25); cursor:pointer; transition:transform .06s ease, filter .15s ease;
+    }
+    .submit .btn:hover{filter:brightness(1.06)}
+    .submit .btn:active{transform:translateY(1px)}
+    .btn[disabled]{opacity:.75; cursor:not-allowed}
+
+    /* フローティング送信ショートカット */
+    .fab{
+      position:fixed; right:16px; bottom:18px; width:52px; height:52px; border-radius:50%;
+      background:var(--brand); color:#fff; display:flex; align-items:center; justify-content:center;
+      box-shadow:0 12px 24px rgba(19,202,94,.35); text-decoration:none; font-size:20px;
+    }
+
+    /* 送信中オーバーレイ */
+    .overlay{
+      position:fixed; inset:0; background:rgba(255,255,255,.6); backdrop-filter:blur(3px);
+      display:none; align-items:center; justify-content:center; z-index:9999;
+    }
+    .overlay.active{display:flex}
+    .spinner{
+      width:56px; height:56px; border-radius:50%;
+      border:5px solid #eaeaea; border-top-color:var(--brand); animation:spin 1s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 </head>
 <body>
-  <!-- 右側の追従ナビ -->
-  <div class="side-nav" id="sideNav">
-    <a href="#section-submit"><span>⇩</span><i class="fas fa-paper-plane"></i></a>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="hero">
+        <h1><i class="far fa-calendar-check"></i> 予約フォーム</h1>
+        <p>必須項目をご入力のうえ、送信してください。</p>
+      </div>
+
+      <form id="reserveForm" class="content" novalidate>
+        <!-- 基本情報 -->
+        <div class="section">
+          <div class="section-title"><i class="fas fa-user"></i> 基本情報</div>
+
+          <div class="grid two">
+            <div class="field" id="f-name">
+              <label class="label" for="name">お名前 <span class="req"><i class="fas fa-asterisk"></i> 必須</span></label>
+              <input class="input" id="name" name="name" type="text" placeholder="例）山田 太郎" autocomplete="name" autocapitalize="off" required />
+              <div class="error">お名前を入力してください。</div>
+            </div>
+
+            <div class="field" id="f-tel">
+              <label class="label" for="tel">電話番号 <span class="req"><i class="fas fa-asterisk"></i> 必須</span></label>
+              <input class="input" id="tel" name="tel" type="tel" inputmode="tel" autocomplete="tel"
+                     placeholder="例）09012345678" pattern="^[0-9+\\-\\s]{9,}$" required />
+              <div class="hint">ハイフン有り無しどちらでも可</div>
+              <div class="error">電話番号を正しく入力してください（数字9桁以上）。</div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="field" id="f-gender">
+              <div class="label">性別 <span class="req"><i class="fas fa-asterisk"></i> 必須</span></div>
+              <div class="chips" data-group="gender">
+                <label class="chip"><input type="radio" name="gender" value="男性"><span><i class="fas fa-mars"></i> 男性</span></label>
+                <label class="chip"><input type="radio" name="gender" value="女性"><span><i class="fas fa-venus"></i> 女性</span></label>
+              </div>
+              <div class="error">性別を選択してください。</div>
+            </div>
+
+            <div class="field" id="f-birthday">
+              <label class="label" for="birthday">生年月日 <span class="req"><i class="fas fa-asterisk"></i> 必須</span></label>
+              <input class="dt" id="birthday" name="birthday" type="date" required />
+              <div class="error">生年月日を選択してください。</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 来店方法 -->
+        <div class="section">
+          <div class="section-title"><i class="fas fa-route"></i> 来店方法</div>
+          <div class="field" id="f-access">
+            <div class="label">来店方法 <span class="req"><i class="fas fa-asterisk"></i> 必須</span></div>
+            <div class="chips" data-group="access">
+              <label class="chip"><input type="radio" name="access" value="車"><span><i class="fas fa-car-side"></i> 車</span></label>
+              <label class="chip"><input type="radio" name="access" value="電車"><span><i class="fas fa-subway"></i> 電車</span></label>
+              <label class="chip"><input type="radio" name="access" value="徒歩"><span><i class="fas fa-walking"></i> 徒歩</span></label>
+              <label class="chip"><input type="radio" name="access" value="その他"><span><i class="fas fa-ellipsis-h"></i> その他</span></label>
+            </div>
+            <input class="input other-input" id="accessOther" type="text" placeholder="来店方法（その他）を入力" style="display:none" />
+            <div class="error">来店方法を選択してください。</div>
+          </div>
+        </div>
+
+        <!-- 希望日時 -->
+        <div class="section">
+          <div class="section-title"><i class="far fa-clock"></i> 希望日時</div>
+          <div class="grid">
+            <div class="field" id="f-wish1">
+              <label class="label" for="wish1">第一希望 <span class="req"><i class="fas fa-asterisk"></i> 必須</span></label>
+              <input class="dt" id="wish1" name="wish1" type="datetime-local" required />
+              <div class="error">第一希望日時を入力してください。</div>
+            </div>
+
+            <div class="field">
+              <label class="label" for="wish2">第二希望（任意）</label>
+              <input class="dt" id="wish2" name="wish2" type="datetime-local" />
+            </div>
+
+            <div class="field">
+              <label class="label" for="wish3">第三希望（任意）</label>
+              <input class="dt" id="wish3" name="wish3" type="datetime-local" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 備考 -->
+        <div class="section">
+          <div class="section-title"><i class="far fa-sticky-note"></i> 備考（任意）</div>
+          <div class="field">
+            <textarea class="textarea" id="note" placeholder="ご要望や連絡事項があればご記入ください"></textarea>
+          </div>
+        </div>
+
+        <div class="submit">
+          <button id="submitBtn" class="btn" type="submit"><i class="fas fa-paper-plane"></i> 送信</button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <div class="container">
-    <h1>予約フォーム</h1>
-    <div class="desc">下記の必須項目（<span class="badge-required">必須</span>）を入力して【送信】を押してください。</div>
-
-    <!-- お名前（必須） -->
-    <div class="field">
-      <div class="label">お名前 <span class="badge-required">必須</span></div>
-      <input id="name" type="text" placeholder="例）山田 太郎" autocomplete="name"/>
-    </div>
-
-    <!-- 電話番号（必須） -->
-    <div class="field">
-      <div class="label">電話番号 <span class="badge-required">必須</span></div>
-      <input id="tel" type="tel" inputmode="tel" placeholder="例）09012345678" autocomplete="tel" />
-    </div>
-
-    <!-- 性別（必須） -->
-    <div class="field">
-      <div class="label">性別 <span class="badge-required">必須</span></div>
-      <div class="radios" id="genderGroup">
-        <label class="chip"><input type="radio" name="gender" value="男性">男性</label>
-        <label class="chip"><input type="radio" name="gender" value="女性">女性</label>
-      </div>
-    </div>
-
-    <!-- 生年月日（必須） -->
-    <div class="field">
-      <div class="label">生年月日 <span class="badge-required">必須</span></div>
-      <input id="birthday" type="date" />
-    </div>
-
-    <!-- 来店方法（必須） -->
-    <div class="field">
-      <div class="label">来店方法 <span class="badge-required">必須</span></div>
-      <div class="radios" id="accessGroup">
-        <label class="chip"><input type="radio" name="access" value="車">車</label>
-        <label class="chip"><input type="radio" name="access" value="電車">電車</label>
-        <label class="chip"><input type="radio" name="access" value="徒歩">徒歩</label>
-        <label class="chip"><input type="radio" name="access" value="その他">その他</label>
-      </div>
-      <input id="accessOther" class="hidden" type="text" placeholder="来店方法（その他）を入力" />
-    </div>
-
-    <!-- 希望日時 -->
-    <div class="field">
-      <div class="label">希望日時（第一） <span class="badge-required">必須</span></div>
-      <input id="wish1" type="datetime-local" />
-    </div>
-    <div class="field">
-      <div class="label">希望日時（第二）</div>
-      <input id="wish2" type="datetime-local" />
-    </div>
-    <div class="field">
-      <div class="label">希望日時（第三）</div>
-      <input id="wish3" type="datetime-local" />
-    </div>
-
-    <!-- 備考（任意） -->
-    <div class="field">
-      <div class="label">備考</div>
-      <textarea id="note" placeholder="ご要望や連絡事項があればご記入ください"></textarea>
-    </div>
-
-    <button id="section-submit" class="submit-button" onclick="submitForm()">送信</button>
+  <!-- 送信中オーバーレイ -->
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="spinner" role="status" aria-label="送信中"></div>
   </div>
 
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
   <script>
-    // ====== LIFF 初期化 ======
+    // ===== LIFF 初期化 =====
     document.addEventListener('DOMContentLoaded', function () {
-      liff.init({ liffId: '2005254357-zKma9BZk' })
+      liff.init({ liffId: '2008420189-a2xZlQV7' })
         .then(() => console.log('LIFF初期化成功'))
         .catch(err => console.error('LIFF初期化失敗', err));
     });
 
-    // 「来店方法：その他」選択時のみ自由入力を表示
-    const accessGroup = document.getElementById('accessGroup');
-    const accessOther = document.getElementById('accessOther');
-    accessGroup.addEventListener('change', () => {
-      const selected = document.querySelector('input[name="access"]:checked');
-      if (selected && selected.value === 'その他') {
-        accessOther.classList.remove('hidden');
-        accessOther.focus();
-      } else {
-        accessOther.classList.add('hidden');
-        accessOther.value = '';
+    // ===== ユーティリティ =====
+    const $ = s => document.querySelector(s);
+
+    // ===== ローカル保存キー =====
+    const LS = {
+      name: 'rf_name',
+      tel: 'rf_tel',
+      gender: 'rf_gender',
+      birthday: 'rf_birthday',
+    };
+
+    function saveLS(key, val){
+      try{ localStorage.setItem(key, val ?? ''); }catch(e){}
+    }
+    function loadLS(key){
+      try{ return localStorage.getItem(key) || ''; }catch(e){ return ''; }
+    }
+
+    // ===== UI：チップの見た目切り替え & 「その他」入力表示 =====
+    function activateChips(container){
+      const labels = container.querySelectorAll('label.chip');
+      labels.forEach(l => {
+        const input = l.querySelector('input');
+        input.addEventListener('change', () => {
+          labels.forEach(x => x.classList.remove('active'));
+          if(input.checked) l.classList.add('active');
+          // 来店方法「その他」
+          if(input.name === 'access'){
+            const other = $('#accessOther');
+            if(input.value === 'その他'){ other.style.display = ''; other.focus(); }
+            else { other.value = ''; other.style.display = 'none'; }
+          }
+          // 性別は変更時に保存
+          if(input.name === 'gender'){ saveLS(LS.gender, input.value); }
+        });
+      });
+    }
+    document.querySelectorAll('.chips').forEach(activateChips);
+
+    // ===== 前回入力の復元（基本情報：名前・電話番号・性別・生年月日） =====
+    (function restoreBasicInfo(){
+      // 名前・電話番号・生年月日
+      const name = loadLS(LS.name);
+      const tel = loadLS(LS.tel);
+      const birthday = loadLS(LS.birthday);
+      if(name) $('#name').value = name;
+      if(tel) $('#tel').value = tel;
+      if(birthday) $('#birthday').value = birthday; // type="date" は "YYYY-MM-DD" でOK
+
+      // 性別
+      const g = loadLS(LS.gender);
+      if(g){
+        const r = document.querySelector(`input[name="gender"][value="${g}"]`);
+        if(r){
+          r.checked = true;
+          // activeクラスを反映
+          const chip = r.closest('label.chip');
+          if(chip){ chip.classList.add('active'); }
+        }
       }
-    });
+    })();
 
-    // 日付表示整形
-    function formatDate(dateStr){ // yyyy-mm-dd → yyyy年m月d日
-      if(!dateStr) return '';
-      const d = new Date(dateStr + 'T00:00:00');
-      if (isNaN(d)) return dateStr;
-      return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+    // ===== 入力の自動保存（基本情報のみ） =====
+    $('#name').addEventListener('input', e => saveLS(LS.name, e.target.value));
+    $('#tel').addEventListener('input', e => saveLS(LS.tel, e.target.value));
+    $('#birthday').addEventListener('change', e => saveLS(LS.birthday, e.target.value));
+    // 性別は chips の change で保存済み
+
+    // ===== バリデーション補助 =====
+    function setInvalid(id, on, msg){
+      const field = document.getElementById(id);
+      if(!field) return;
+      field.classList.toggle('invalid', !!on);
+      if(msg){ const el = field.querySelector('.error'); if(el) el.textContent = msg; }
     }
-    function formatDateTimeLocal(dtStr){ // 2025-11-05T10:00 → 2025年11月5日 10:00
-      if(!dtStr) return '';
-      const d = new Date(dtStr);
-      if (isNaN(d)) return dtStr;
+    function firstInvalidScroll(){
+      const target = document.querySelector('.invalid');
+      if(target) target.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+    function isTelOK(val){ return /^[0-9+\-\s]{9,}$/.test(val.trim()); }
+
+    // ===== 日付整形 =====
+    function fDate(d){
+      if(!d) return '';
+      const x = new Date(d + 'T00:00');
+      if(isNaN(x)) return d;
+      return `${x.getFullYear()}年${x.getMonth()+1}月${x.getDate()}日`;
+    }
+    function fDT(dt){
+      if(!dt) return '';
+      const x = new Date(dt);
+      if(isNaN(x)) return dt;
       const pad = n => String(n).padStart(2,'0');
-      return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      return `${x.getFullYear()}年${x.getMonth()+1}月${x.getDate()}日 ${pad(x.getHours())}:${pad(x.getMinutes())}`;
     }
 
-    // 入力値取得
-    function getVal(id){ return document.getElementById(id).value.trim(); }
+    // ===== 送信処理 =====
+    const form = document.getElementById('reserveForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = $('#name').value.trim();
+      const tel = $('#tel').value.trim();
+      const gender = (document.querySelector('input[name="gender"]:checked') || {}).value || '';
+      const birthday = $('#birthday').value;
+      const accessEl = (document.querySelector('input[name="access"]:checked') || {});
+      const access = accessEl.value || '';
+      const accessOther = $('#accessOther').value.trim();
+      const wish1 = $('#wish1').value;
+      const wish2 = $('#wish2').value;
+      const wish3 = $('#wish3').value;
+      const note = $('#note').value.trim();
 
-    // バリデーション
-    function validate(form){
-      if(!form.name){ alert('お名前を入力してください。'); return false; }
-      if(!form.tel){ alert('電話番号を入力してください。'); return false; }
-      if(!form.gender){ alert('性別を選択してください。'); return false; }
-      if(!form.birthday){ alert('生年月日を選択してください。'); return false; }
-      if(!form.access){ alert('来店方法を選択してください。'); return false; }
-      if(form.access === 'その他' && !form.accessOther){ alert('来店方法（その他）を入力してください。'); return false; }
-      if(!form.wish1){ alert('希望日時（第一）を入力してください。'); return false; }
-      return true;
-    }
+      ['f-name','f-tel','f-gender','f-birthday','f-access','f-wish1'].forEach(id=>setInvalid(id,false));
 
-    // 送信
-    async function submitForm(){
-      const genderEl = document.querySelector('input[name="gender"]:checked');
-      const accessEl = document.querySelector('input[name="access"]:checked');
+      let bad = false;
+      if(!name){ setInvalid('f-name', true); bad = true; }
+      if(!tel || !isTelOK(tel)){ setInvalid('f-tel', true); bad = true; }
+      if(!gender){ setInvalid('f-gender', true); bad = true; }
+      if(!birthday){ setInvalid('f-birthday', true); bad = true; }
+      if(!access){ setInvalid('f-access', true); bad = true; }
+      if(access === 'その他' && !accessOther){ setInvalid('f-access', true, '「その他」の内容を入力してください。'); bad = true; }
+      if(!wish1){ setInvalid('f-wish1', true); bad = true; }
 
-      const formData = {
-        name: getVal('name'),
-        tel: getVal('tel'),
-        gender: genderEl ? genderEl.value : '',
-        birthday: getVal('birthday'),
-        access: accessEl ? accessEl.value : '',
-        accessOther: getVal('accessOther'),
-        wish1: getVal('wish1'),
-        wish2: getVal('wish2'),
-        wish3: getVal('wish3'),
-        note: getVal('note'),
-      };
+      if(bad){ firstInvalidScroll(); return; }
 
-      if(!validate(formData)) return;
-
-      const accessText = formData.access === 'その他' && formData.accessOther
-        ? `その他（${formData.accessOther}）` : formData.access;
+      const accessText = access === 'その他' && accessOther ? `その他（${accessOther}）` : access;
 
       const lines = [
         '≪予約フォーム≫',
-        `【お名前】\n・${formData.name}`,
-        `【電話番号】\n・${formData.tel}`,
-        `【性別】\n・${formData.gender}`,
-        `【生年月日】\n・${formatDate(formData.birthday)}`,
+        `【お名前】\n・${name}`,
+        `【電話番号】\n・${tel}`,
+        `【性別】\n・${gender}`,
+        `【生年月日】\n・${fDate(birthday)}`,
         `【来店方法】\n・${accessText}`,
         '【希望日時】',
-        `・第一希望：${formatDateTimeLocal(formData.wish1)}`,
-        formData.wish2 ? `・第二希望：${formatDateTimeLocal(formData.wish2)}` : '',
-        formData.wish3 ? `・第三希望：${formatDateTimeLocal(formData.wish3)}` : '',
-        formData.note ? `【備考】\n・${formData.note}` : ''
-      ].filter(Boolean);
+        `・第一希望\n${fDT(wish1)}`,
+        wish2 ? `・第二希望\n${fDT(wish2)}` : '',
+        wish3 ? `・第三希望\n${fDT(wish3)}` : '',
+        note ? `【備考】\n・${note}` : ''
+      ].filter(Boolean).join('\n');
 
+      const overlay = document.getElementById('overlay');
+      const btn = document.getElementById('submitBtn');
       try{
-        await liff.sendMessages([{ type:'text', text: lines.join('\n') }]);
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden','false');
+        btn.setAttribute('disabled','true');
+        await liff.sendMessages([{ type:'text', text: lines }]);
         alert('送信ありがとうございました。担当者から折り返しご連絡いたします。');
         liff.closeWindow();
       }catch(err){
-        console.error('メッセージ送信に失敗', err);
-        alert('送信に失敗しました。電波状況をご確認の上、再度お試しください。');
+        console.error('送信失敗', err);
+        alert('送信に失敗しました。電波状況をご確認のうえ再度お試しください。');
+      }finally{
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden','true');
+        btn.removeAttribute('disabled');
       }
-    }
+    });
   </script>
 </body>
 </html>
