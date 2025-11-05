@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>予約フォーム</title>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    /* 右端の細いナビ（固定） */
+    .side-nav{
+      position:fixed; right:-5px; top:80%; transform:translateY(-50%) translateX(15px);
+      background:#13ca5e; display:flex; flex-direction:column; align-items:center;
+      padding:4px; border-radius:10px 0 0 10px; z-index:1000; width:35px;
+    }
+    .side-nav a{display:flex; align-items:center; justify-content:center; color:#fff; text-decoration:none;
+      font-size:10px; margin:5px 0; padding:5px; border-radius:5px; width:30px; height:30px; text-align:center;}
+    .side-nav a span{font-size:24px; position:absolute; left:0; top:13px;}
+
+    body{font-family:Arial, "Noto Sans JP", sans-serif; background:#f7f7f7; display:flex;
+      justify-content:center; align-items:flex-start; min-height:100vh; margin:0; padding:20px 0;}
+    .container{background:#fff; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,.1);
+      width:90%; max-width:520px; padding:20px; box-sizing:border-box;}
+    h1{background:linear-gradient(135deg,#13ca5e,#0fa958); color:#fff; padding:20px; border-radius:0 15px 0 45px;
+      text-align:center; margin:-20px -15px 20px -15px; font-size:24px; font-weight:600;}
+    .desc{margin: 12px 0 18px; font-size:14px; color:#333; background:#f8f9fa; padding:12px; border:1px solid #ced4da; border-radius:6px;}
+    .field{margin-bottom:18px;}
+    .label{display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:8px;}
+    .badge-required{color:#fff; background:#ff2f2f; font-size:12px; padding:1px 6px; border-radius:4px;}
+    input[type="text"], input[type="tel"], input[type="date"], input[type="datetime-local"], textarea{
+      width:100%; padding:12px; border:1px solid #ccc; border-radius:6px; box-sizing:border-box; font-size:16px;
+      transition:all .2s; background:#fff;
+    }
+    textarea{min-height:90px; resize:vertical;}
+    input:focus, textarea:focus{border-color:#13ca5e; outline:none; box-shadow:0 0 8px rgba(19,202,94,.2);}
+    .radios, .chips{display:flex; flex-wrap:wrap; gap:10px;}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px; border:1px solid #ccc; border-radius:24px; padding:8px 12px; cursor:pointer; background:#fff;
+    }
+    .chip input{accent-color:#13ca5e; transform:scale(1.1);}
+    .submit-button{width:100%; padding:14px; font-size:18px; border:none; border-radius:6px; background:#dc3545; color:#fff; cursor:pointer;}
+    .submit-button:hover{background:#c82333;}
+    .hidden{display:none;}
+    @media (max-width:600px){
+      .side-nav{right:2px; width:30px;}
+      .side-nav a{width:28px; height:28px;}
+      h1{font-size:22px;}
+      input, textarea{font-size:15px;}
+    }
+  </style>
+</head>
+<body>
+  <!-- 右側の追従ナビ -->
+  <div class="side-nav" id="sideNav">
+    <a href="#section-submit"><span>⇩</span><i class="fas fa-paper-plane"></i></a>
+  </div>
+
+  <div class="container">
+    <h1>予約フォーム</h1>
+    <div class="desc">下記の必須項目（<span class="badge-required">必須</span>）を入力して【送信】を押してください。</div>
+
+    <!-- お名前（必須） -->
+    <div class="field">
+      <div class="label">お名前 <span class="badge-required">必須</span></div>
+      <input id="name" type="text" placeholder="例）山田 太郎" autocomplete="name"/>
+    </div>
+
+    <!-- 電話番号（必須） -->
+    <div class="field">
+      <div class="label">電話番号 <span class="badge-required">必須</span></div>
+      <input id="tel" type="tel" inputmode="tel" placeholder="例）09012345678" autocomplete="tel" />
+    </div>
+
+    <!-- 性別（必須） -->
+    <div class="field">
+      <div class="label">性別 <span class="badge-required">必須</span></div>
+      <div class="radios" id="genderGroup">
+        <label class="chip"><input type="radio" name="gender" value="男性">男性</label>
+        <label class="chip"><input type="radio" name="gender" value="女性">女性</label>
+      </div>
+    </div>
+
+    <!-- 生年月日（必須） -->
+    <div class="field">
+      <div class="label">生年月日 <span class="badge-required">必須</span></div>
+      <input id="birthday" type="date" />
+    </div>
+
+    <!-- 来店方法（必須） -->
+    <div class="field">
+      <div class="label">来店方法 <span class="badge-required">必須</span></div>
+      <div class="radios" id="accessGroup">
+        <label class="chip"><input type="radio" name="access" value="車">車</label>
+        <label class="chip"><input type="radio" name="access" value="電車">電車</label>
+        <label class="chip"><input type="radio" name="access" value="徒歩">徒歩</label>
+        <label class="chip"><input type="radio" name="access" value="その他">その他</label>
+      </div>
+      <input id="accessOther" class="hidden" type="text" placeholder="来店方法（その他）を入力" />
+    </div>
+
+    <!-- 希望日時 -->
+    <div class="field">
+      <div class="label">希望日時（第一） <span class="badge-required">必須</span></div>
+      <input id="wish1" type="datetime-local" />
+    </div>
+    <div class="field">
+      <div class="label">希望日時（第二）</div>
+      <input id="wish2" type="datetime-local" />
+    </div>
+    <div class="field">
+      <div class="label">希望日時（第三）</div>
+      <input id="wish3" type="datetime-local" />
+    </div>
+
+    <!-- 備考（任意） -->
+    <div class="field">
+      <div class="label">備考</div>
+      <textarea id="note" placeholder="ご要望や連絡事項があればご記入ください"></textarea>
+    </div>
+
+    <button id="section-submit" class="submit-button" onclick="submitForm()">送信</button>
+  </div>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script>
+  <script>
+    // ====== LIFF 初期化 ======
+    document.addEventListener('DOMContentLoaded', function () {
+      liff.init({ liffId: '2005254357-zKma9BZk' })
+        .then(() => console.log('LIFF初期化成功'))
+        .catch(err => console.error('LIFF初期化失敗', err));
+    });
+
+    // 「来店方法：その他」選択時のみ自由入力を表示
+    const accessGroup = document.getElementById('accessGroup');
+    const accessOther = document.getElementById('accessOther');
+    accessGroup.addEventListener('change', () => {
+      const selected = document.querySelector('input[name="access"]:checked');
+      if (selected && selected.value === 'その他') {
+        accessOther.classList.remove('hidden');
+        accessOther.focus();
+      } else {
+        accessOther.classList.add('hidden');
+        accessOther.value = '';
+      }
+    });
+
+    // 日付表示整形
+    function formatDate(dateStr){ // yyyy-mm-dd → yyyy年m月d日
+      if(!dateStr) return '';
+      const d = new Date(dateStr + 'T00:00:00');
+      if (isNaN(d)) return dateStr;
+      return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+    }
+    function formatDateTimeLocal(dtStr){ // 2025-11-05T10:00 → 2025年11月5日 10:00
+      if(!dtStr) return '';
+      const d = new Date(dtStr);
+      if (isNaN(d)) return dtStr;
+      const pad = n => String(n).padStart(2,'0');
+      return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    // 入力値取得
+    function getVal(id){ return document.getElementById(id).value.trim(); }
+
+    // バリデーション
+    function validate(form){
+      if(!form.name){ alert('お名前を入力してください。'); return false; }
+      if(!form.tel){ alert('電話番号を入力してください。'); return false; }
+      if(!form.gender){ alert('性別を選択してください。'); return false; }
+      if(!form.birthday){ alert('生年月日を選択してください。'); return false; }
+      if(!form.access){ alert('来店方法を選択してください。'); return false; }
+      if(form.access === 'その他' && !form.accessOther){ alert('来店方法（その他）を入力してください。'); return false; }
+      if(!form.wish1){ alert('希望日時（第一）を入力してください。'); return false; }
+      return true;
+    }
+
+    // 送信
+    async function submitForm(){
+      const genderEl = document.querySelector('input[name="gender"]:checked');
+      const accessEl = document.querySelector('input[name="access"]:checked');
+
+      const formData = {
+        name: getVal('name'),
+        tel: getVal('tel'),
+        gender: genderEl ? genderEl.value : '',
+        birthday: getVal('birthday'),
+        access: accessEl ? accessEl.value : '',
+        accessOther: getVal('accessOther'),
+        wish1: getVal('wish1'),
+        wish2: getVal('wish2'),
+        wish3: getVal('wish3'),
+        note: getVal('note'),
+      };
+
+      if(!validate(formData)) return;
+
+      const accessText = formData.access === 'その他' && formData.accessOther
+        ? `その他（${formData.accessOther}）` : formData.access;
+
+      const lines = [
+        '≪予約フォーム≫',
+        `【お名前】\n・${formData.name}`,
+        `【電話番号】\n・${formData.tel}`,
+        `【性別】\n・${formData.gender}`,
+        `【生年月日】\n・${formatDate(formData.birthday)}`,
+        `【来店方法】\n・${accessText}`,
+        '【希望日時】',
+        `・第一希望：${formatDateTimeLocal(formData.wish1)}`,
+        formData.wish2 ? `・第二希望：${formatDateTimeLocal(formData.wish2)}` : '',
+        formData.wish3 ? `・第三希望：${formatDateTimeLocal(formData.wish3)}` : '',
+        formData.note ? `【備考】\n・${formData.note}` : ''
+      ].filter(Boolean);
+
+      try{
+        await liff.sendMessages([{ type:'text', text: lines.join('\n') }]);
+        alert('送信ありがとうございました。担当者から折り返しご連絡いたします。');
+        liff.closeWindow();
+      }catch(err){
+        console.error('メッセージ送信に失敗', err);
+        alert('送信に失敗しました。電波状況をご確認の上、再度お試しください。');
+      }
+    }
+  </script>
+</body>
+</html>
